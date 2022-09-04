@@ -62,23 +62,16 @@ void loop() {
 				Serial.println("runAll");
 			}
 			LX = ps2x.Analog(PSS_LX);
-        	LXBl = 255-(LX-1);
-        	LXBr = 255-LXBl;
-        	LXB11 = LXBr==0?LXBl/(LXBr+0.01):LXBl/LXBr;
-        	LXB22 = LXBl==0?LXBr/(LXBl+0.01):LXBr/LXBl;
-        	LY = ps2x.Analog(PSS_LY);
-			Serial.print("LX:    ");Serial.println(LX);
-			Serial.print("\nLXB1:  ");Serial.println(LXBl);
-			Serial.print("LXBr:  ");Serial.println(LXBr);
-			Serial.print("\nLXB11: ");Serial.println(LXB11);
-			Serial.print("LXB22: ");Serial.println(LXB22);
-			Serial.print("\nLY:    ");Serial.println(LY);
-        	analogWrite(5,LXB11*LY);
-        	analogWrite(10,LXB22*LY);
+      		LXBl = 256-LX;
+      		LXBr = 256-LXBl;
+      		analogWrite(5,LXBl);
+      		Serial.println(LXBl);
+      		analogWrite(10,LXBr);
+      		Serial.println(LXBr);
 		}
 	}
 	Serial.println();
-	delay(800);
+	delay(300);
 }
 
 
@@ -101,3 +94,4 @@ void DF_fRunAll() {
 	digitalWrite(8, HIGH);
 	digitalWrite(9, LOW);
 }
+
