@@ -67,12 +67,18 @@ void loop() {
         	LYB11 = LYBl/LYBr;
         	LYB22 = LYBr/LYBl;
         	LX = ps2x.Analog(PSS_LX);
-			Serail.println(LY+" "+LYBl+" "+LYBr+" "+LYB11+" "+LYB22+" "+LX);
+			Serial.print("LY:");Serial.println(LY);
+			Serial.print("LYB1:");Serial.println(LYBl);
+			Serial.print("LYBr:");Serial.println(LYBr);
+			Serial.print("\nLYB11:");Serial.println(LYB11);
+			Serial.print("LYB22:");Serial.println(LYB22);
+			Serial.print("\nLX:");Serial.println(LX);
         	analogWrite(5,LYB11*LX);
         	analogWrite(10,LYB22*LX);
 		}
 	}
-	delay(50);
+	Serial.println();
+	delay(400);
 }
 
 
