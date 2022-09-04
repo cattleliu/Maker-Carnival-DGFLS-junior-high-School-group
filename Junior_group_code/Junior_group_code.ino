@@ -11,12 +11,23 @@ volatile float mind_n_modeA;
 void DF_stopAll();
 void DF_runAll();
 void DF_fRunAll();
+void stopL();
+void stopR();
+void runL();
+void runR();
+void frunL();
+void frunR();
 // 创建对象
 DFRobot_PS2X ps2x;
 
 
 // 主程序开始
 void setup() {
+	pinMode(6,OUTPUT);
+	pinMode(7,OUTPUT);
+	pinMode(8,OUTPUT);
+	pinMode(9,OUTPUT);
+	pinMode(13,OUTPUT);
 	ps2x.config_gamepad(A2,A4,A3,A5, true, true);
 	delay(300);
 	ps2x.read_gamepad();
@@ -34,8 +45,7 @@ double LXB22;
 double LY;
 
 void loop() {
-	ps2x.read_gamepad();
-	delay(30);
+	ps2x.read_gamepad(); //刷新
 	if (ps2x.Button(PSB_BLUE)) {
 		DF_stopAll();
 		Serial.println("x down");
@@ -45,7 +55,6 @@ void loop() {
 			if ((mind_n_modeA==1)) {
 				mind_n_modeA = 0;
 				digitalWrite(13, HIGH);
-				Serial.println("select down");
 			}
 			else if ((mind_n_modeA==0)) {
 				mind_n_modeA = 1;
@@ -53,20 +62,20 @@ void loop() {
 			}
 		}
 		if ((mind_n_modeA==0)) {
-			if ((ps2x.Analog(PSS_LY)<127)) {
+			if ((ps2x.Analog(PSS_LY)<120)) {
 				DF_fRunAll();
-				Serial.println("fRunAll");
+				Serial.println("fRunAll1");
 			}
-			else if (127<ps2x.Analog(PSS_LY)) {
+			else if (134<ps2x.Analog(PSS_LY)) {
 				DF_runAll();
-				Serial.println("runAll");
+				Serial.println("runAll1");
 			}
-			if ((ps2x.Analog(PSS_LX)<127)) {
+			else if ((ps2x.Analog(PSS_LX)<120)) {
 				frunL();
 				runR();
 				Serial.println("fRunAll");
 			}
-			else if (127<ps2x.Analog(PSS_LX)) {
+			else if (134<ps2x.Analog(PSS_LX)) {
 				runL();
 				frunR();
 				Serial.println("runAll");
@@ -74,9 +83,9 @@ void loop() {
 			// LX = ps2x.Analog(PSS_LX);
       		// LXBl = 256-LX;
       		// LXBr = 256-LXBl;
-      		// analogWrite(5,LXBl);
+      		analogWrite(5,255);
       		// Serial.println(LXBl);
-      		// analogWrite(10,LXBr);
+      		analogWrite(10,255);
       		// Serial.println(LXBr);
 		}
 	}
@@ -115,7 +124,7 @@ void runR() {
 	digitalWrite(9, HIGH);
 }
 void frunL() {
-	digitalWrite(6, HTGH);
+	digitalWrite(6, HIGH);
 	digitalWrite(7, LOW);
 }
 void frunR() {
