@@ -3,7 +3,7 @@
  * uno
  *
  */
-#include <C:\Program Files (x86)\Mind+\Arduino\libraries\DFRobot_PS2X\DFRobot_PS2X.h>
+#include <DFRobot_PS2X.h>
 
 // ¶¯Ì¬±äÁ¿
 volatile float mind_n_modeA;
@@ -24,11 +24,15 @@ void setup() {
 	Serial.begin(9600);
 	mind_n_modeA = 0;
 	digitalWrite(13, HIGH);
-    int LY;
-    int LYBl;
-    int LYBr;
-    int LYB;
 }
+
+int LY;
+int LYBl;
+int LYBr;
+int LYB11;
+int LYB22
+int LX;
+
 void loop() {
 	ps2x.read_gamepad();
 	delay(30);
@@ -59,7 +63,11 @@ void loop() {
         LY = ps2x.Analog(PSS_LY);
         LYBl = 255-LY;
         LYBr = 255-LYBl;
-        LYB = LYBl/LYBr;
+        LYB11 = LYBl/LYBr;
+        LYB22 = LYBr/LYBl;
+        LX = ps2x.Analog(PSS_LX);
+        analogWrite(5,LYB11*LX);
+        analogWrite(10,LYB22*LX)
 	}
 	delay(50);
 }
