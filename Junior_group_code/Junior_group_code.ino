@@ -80,6 +80,9 @@ void loop() {
 				frunR();
 				Serial.println("runAll");
 			}
+			else {
+				DF_stopAll();
+			}
 			// LX = ps2x.Analog(PSS_LX);
       		// LXBl = 256-LX;
       		// LXBr = 256-LXBl;
