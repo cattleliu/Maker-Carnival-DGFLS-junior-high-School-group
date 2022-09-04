@@ -26,12 +26,12 @@ void setup() {
 	digitalWrite(13, HIGH);
 }
 
-int LY;
-int LYBl;
-int LYBr;
-int LYB11;
-int LYB22;
-int LX;
+double LX;
+double LXBl;
+double LXBr;
+double LXB11;
+double LXB22;
+double LY;
 
 void loop() {
 	ps2x.read_gamepad();
@@ -61,20 +61,20 @@ void loop() {
 				DF_runAll();
 				Serial.println("runAll");
 			}
-			LY = ps2x.Analog(PSS_LY);
-        	LYBl = 255-LY;
-        	LYBr = 255-LYBl;
-        	LYB11 = LYBl/LYBr;
-        	LYB22 = LYBr/LYBl;
-        	LX = ps2x.Analog(PSS_LX);
-			Serial.print("LY:    ");Serial.println(LY);
-			Serial.print("\nLYB1:  ");Serial.println(LYBl);
-			Serial.print("LYBr:  ");Serial.println(LYBr);
-			Serial.print("\nLYB11: ");Serial.println(LYB11);
-			Serial.print("LYB22: ");Serial.println(LYB22);
-			Serial.print("\nLX:    ");Serial.println(LX);
-        	analogWrite(5,LYB11*LX);
-        	analogWrite(10,LYB22*LX);
+			LX = ps2x.Analog(PSS_LX);
+        	LXBl = 255-(LX-1);
+        	LXBr = 255-LXBl;
+        	LXB11 = LXBr==0?LXBl/(LXBr+0.01):LXBl/LXBr;
+        	LXB22 = LXBl==0?LXBr/(LXBl+0.01):LXBr/LXBl;
+        	LY = ps2x.Analog(PSS_LY);
+			Serial.print("LX:    ");Serial.println(LX);
+			Serial.print("\nLXB1:  ");Serial.println(LXBl);
+			Serial.print("LXBr:  ");Serial.println(LXBr);
+			Serial.print("\nLXB11: ");Serial.println(LXB11);
+			Serial.print("LXB22: ");Serial.println(LXB22);
+			Serial.print("\nLY:    ");Serial.println(LY);
+        	analogWrite(5,LXB11*LY);
+        	analogWrite(10,LXB22*LY);
 		}
 	}
 	Serial.println();
