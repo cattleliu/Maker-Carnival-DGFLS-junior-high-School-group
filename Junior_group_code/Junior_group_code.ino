@@ -53,21 +53,31 @@ void loop() {
 			}
 		}
 		if ((mind_n_modeA==0)) {
-			if ((ps2x.Analog(PSS_LX)<127)) {
+			if ((ps2x.Analog(PSS_LY)<127)) {
 				DF_fRunAll();
 				Serial.println("fRunAll");
 			}
-			else if ((127<ps2x.Analog(PSS_LX))) {
+			else if (127<ps2x.Analog(PSS_LY)) {
 				DF_runAll();
 				Serial.println("runAll");
 			}
-			LX = ps2x.Analog(PSS_LX);
-      		LXBl = 256-LX;
-      		LXBr = 256-LXBl;
-      		analogWrite(5,LXBl);
-      		Serial.println(LXBl);
-      		analogWrite(10,LXBr);
-      		Serial.println(LXBr);
+			if ((ps2x.Analog(PSS_LX)<127)) {
+				frunL();
+				runR();
+				Serial.println("fRunAll");
+			}
+			else if (127<ps2x.Analog(PSS_LX)) {
+				runL();
+				frunR();
+				Serial.println("runAll");
+			}
+			// LX = ps2x.Analog(PSS_LX);
+      		// LXBl = 256-LX;
+      		// LXBr = 256-LXBl;
+      		// analogWrite(5,LXBl);
+      		// Serial.println(LXBl);
+      		// analogWrite(10,LXBr);
+      		// Serial.println(LXBr);
 		}
 	}
 	Serial.println();
@@ -77,21 +87,38 @@ void loop() {
 
 // 自定义函数
 void DF_stopAll() {
-	digitalWrite(7, LOW);
-	digitalWrite(6, LOW);
+	stopR();
+	stopL();
+}
+void DF_runAll() {
+	runL();
+	runR();
+}
+void DF_fRunAll() {
+	frunL();
+	frunR();
+}
+void stopL() {
 	digitalWrite(8, LOW);
 	digitalWrite(9, LOW);
 }
-void DF_runAll() {
+void stopR() {
+	digitalWrite(7, LOW);
+	digitalWrite(6, LOW);
+}
+void runL() {
 	digitalWrite(6, LOW);
 	digitalWrite(7, HIGH);
+}
+void runR() {
 	digitalWrite(8, LOW);
 	digitalWrite(9, HIGH);
 }
-void DF_fRunAll() {
-	digitalWrite(6, LOW);
+void frunL() {
+	digitalWrite(6, HTGH);
 	digitalWrite(7, LOW);
+}
+void frunR() {
 	digitalWrite(8, HIGH);
 	digitalWrite(9, LOW);
 }
-
