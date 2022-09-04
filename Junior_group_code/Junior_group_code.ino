@@ -30,7 +30,7 @@ int LY;
 int LYBl;
 int LYBr;
 int LYB11;
-int LYB22
+int LYB22;
 int LX;
 
 void loop() {
@@ -38,12 +38,14 @@ void loop() {
 	delay(30);
 	if (ps2x.Button(PSB_BLUE)) {
 		DF_stopAll();
+		Serial.println("x down");
 	}
 	else {
 		if (ps2x.Button(PSB_SELECT)) {
 			if ((mind_n_modeA==1)) {
 				mind_n_modeA = 0;
 				digitalWrite(13, HIGH);
+				Serial.println("select down");
 			}
 			else if ((mind_n_modeA==0)) {
 				mind_n_modeA = 1;
@@ -53,21 +55,22 @@ void loop() {
 		if ((mind_n_modeA==0)) {
 			if ((ps2x.Analog(PSS_LX)<127)) {
 				DF_fRunAll();
+				Serial.println("fRunAll");
 			}
 			else if ((127<ps2x.Analog(PSS_LX))) {
 				DF_runAll();
+				Serial.println("runAll");
 			}
-			analogWrite(5, 200);
-			analogWrite(10, 200);
+			LY = ps2x.Analog(PSS_LY);
+        	LYBl = 255-LY;
+        	LYBr = 255-LYBl;
+        	LYB11 = LYBl/LYBr;
+        	LYB22 = LYBr/LYBl;
+        	LX = ps2x.Analog(PSS_LX);
+			Serail.println(LY+" "+LYBl+" "+LYBr+" "+LYB11+" "+LYB22+" "+LX);
+        	analogWrite(5,LYB11*LX);
+        	analogWrite(10,LYB22*LX);
 		}
-        LY = ps2x.Analog(PSS_LY);
-        LYBl = 255-LY;
-        LYBr = 255-LYBl;
-        LYB11 = LYBl/LYBr;
-        LYB22 = LYBr/LYBl;
-        LX = ps2x.Analog(PSS_LX);
-        analogWrite(5,LYB11*LX);
-        analogWrite(10,LYB22*LX)
 	}
 	delay(50);
 }
