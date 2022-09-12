@@ -17,6 +17,7 @@ void runL();
 void runR();
 void frunL();
 void frunR();
+void sRun();
 // 创建对象
 DFRobot_PS2X ps2x;
 
@@ -33,7 +34,7 @@ void setup() {
 	ps2x.read_gamepad();
 	delay(30);
 	Serial.begin(9600);
-	mind_n_modeA = 0;
+	mind_n_modeA = 0;//自动和手动状态
 	digitalWrite(13, HIGH);
 }
 
@@ -43,6 +44,11 @@ double LXBr;
 double LXB11;
 double LXB22;
 double LY;
+
+int sx;
+int sy;
+
+int tmpl;
 
 void loop() {
 	ps2x.read_gamepad(); //刷新
@@ -63,37 +69,39 @@ void loop() {
 		}
 		if ((mind_n_modeA==0)) {
 			if ((ps2x.Analog(PSS_LY)<120)) {
+				sRun();
 				DF_fRunAll();
-				Serial.println("fRunAll1");
+				Serial.println("后");				
+				
 			}
-			else if (134<ps2x.Analog(PSS_LY)) {
+			else if (ps2x.Analog(PSS_LY)>134) {
+				sRun();
 				DF_runAll();
-				Serial.println("runAll1");
+				Serial.println("前");			
+				
 			}
 			else if ((ps2x.Analog(PSS_LX)<120)) {
+				sRun();
 				frunL();
 				runR();
-				Serial.println("fRunAll");
+				Serial.println("左");				
+				
 			}
-			else if (134<ps2x.Analog(PSS_LX)) {
+			else if (ps2x.Analog(PSS_LX)>134) {
+				sRun();
 				runL();
 				frunR();
-				Serial.println("runAll");
+				Serial.println("右");
+				
 			}
 			else {
 				DF_stopAll();
+				Serial.println("allstop");
 			}
-			// LX = ps2x.Analog(PSS_LX);
-      		// LXBl = 256-LX;
-      		// LXBr = 256-LXBl;
-      		analogWrite(5,255);
-      		// Serial.println(LXBl);
-      		analogWrite(10,255);
-      		// Serial.println(LXBr);
 		}
 	}
 	Serial.println();
-	delay(300);
+	delay(30);
 }
 
 
@@ -101,10 +109,12 @@ void loop() {
 void DF_stopAll() {
 	stopR();
 	stopL();
+
 }
 void DF_runAll() {
 	runL();
 	runR();
+	
 }
 void DF_fRunAll() {
 	frunL();
@@ -113,6 +123,7 @@ void DF_fRunAll() {
 void stopL() {
 	digitalWrite(8, LOW);
 	digitalWrite(9, LOW);
+	
 }
 void stopR() {
 	digitalWrite(7, LOW);
@@ -133,4 +144,19 @@ void frunL() {
 void frunR() {
 	digitalWrite(8, HIGH);
 	digitalWrite(9, LOW);
+}
+void sRun() {
+    sx = abs(ps2x.Analog(PSS_LX)-127)*2-1;
+	sy = abs(ps2x.Analog(PSS_LY)-127)*2-1;
+    if (sx > sy) {
+       analogWrite(5,sx);
+       analogWrite(10,sx);
+	   Serial.println(sx);
+	}
+	else{
+      analogWrite(5,sy);
+      analogWrite(10,sy);
+	  Serial.println(sy);
+	}
+	
 }
