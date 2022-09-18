@@ -5,9 +5,9 @@
  */
 #include <DFRobot_PS2X.h>
 
-// ¶¯Ì¬±äÁ¿
+// åŠ¨æ€å˜é‡
 volatile float mind_n_modeA;
-// º¯ÊıÉùÃ÷
+// å‡½æ•°å£°æ˜
 void DF_stopAll();
 void DF_runAll();
 void DF_fRunAll();
@@ -17,23 +17,25 @@ void runL();
 void runR();
 void frunL();
 void frunR();
-// ´´½¨¶ÔÏó
+void sRun();
+void turnAround();
+// åˆ›å»ºå¯¹è±¡
 DFRobot_PS2X ps2x;
 
-
-// Ö÷³ÌĞò¿ªÊ¼
-void setup() {
-	pinMode(6,OUTPUT);
-	pinMode(7,OUTPUT);
-	pinMode(8,OUTPUT);
-	pinMode(9,OUTPUT);
-	pinMode(13,OUTPUT);
-	ps2x.config_gamepad(A2,A4,A3,A5, true, true);
+// ä¸»ç¨‹åºå¼€å§‹
+void setup()
+{
+	pinMode(6, OUTPUT);
+	pinMode(7, OUTPUT);
+	pinMode(8, OUTPUT);
+	pinMode(9, OUTPUT);
+	pinMode(13, OUTPUT);
+	ps2x.config_gamepad(A2, A4, A3, A5, true, true);
 	delay(300);
 	ps2x.read_gamepad();
 	delay(30);
 	Serial.begin(9600);
-	mind_n_modeA = 0;
+	mind_n_modeA = 0; //è‡ªåŠ¨å’Œæ‰‹åŠ¨çŠ¶æ€
 	digitalWrite(13, HIGH);
 }
 
@@ -44,93 +46,143 @@ double LXB11;
 double LXB22;
 double LY;
 
-void loop() {
-	ps2x.read_gamepad(); //Ë¢ĞÂ
-	if (ps2x.Button(PSB_BLUE)) {
+int sx;
+int sy;
+double hw;
+
+int tmpl;
+
+void loop()
+{
+	ps2x.read_gamepad(); //åˆ·æ–°
+	if (ps2x.Button(PSB_BLUE))
+	{
 		DF_stopAll();
 		Serial.println("x down");
 	}
-	else {
-		if (ps2x.Button(PSB_SELECT)) {
-			if ((mind_n_modeA==1)) {
+	else
+	{
+		if (ps2x.Button(PSB_SELECT))
+		{
+			if ((mind_n_modeA == 1))
+			{
 				mind_n_modeA = 0;
 				digitalWrite(13, HIGH);
 			}
-			else if ((mind_n_modeA==0)) {
+			else if ((mind_n_modeA == 0))
+			{
 				mind_n_modeA = 1;
 				digitalWrite(13, LOW);
 			}
 		}
-		if ((mind_n_modeA==0)) {
-			if ((ps2x.Analog(PSS_LY)<120)) {
+		if ((mind_n_modeA == 0))
+		{
+			if ((ps2x.Analog(PSS_LY) < 120))
+			{
+				sRun();
 				DF_fRunAll();
-				Serial.println("fRunAll1");
+				Serial.println("å");
 			}
-			else if (134<ps2x.Analog(PSS_LY)) {
+			else if (ps2x.Analog(PSS_LY) > 134)
+			{
+				sRun();
 				DF_runAll();
-				Serial.println("runAll1");
+				Serial.println("å‰");
 			}
-			else if ((ps2x.Analog(PSS_LX)<120)) {
+			else if ((ps2x.Analog(PSS_LX) < 120))
+			{
+				sRun();
 				frunL();
 				runR();
-				Serial.println("fRunAll");
+				Serial.println("å·¦");
 			}
-			else if (134<ps2x.Analog(PSS_LX)) {
+			else if (ps2x.Analog(PSS_LX) > 134)
+			{
+				sRun();
 				runL();
 				frunR();
-				Serial.println("runAll");
+				Serial.println("å³");
 			}
-			else {
+			else
+			{
 				DF_stopAll();
+				Serial.println("allstop");
 			}
-			// LX = ps2x.Analog(PSS_LX);
-      		// LXBl = 256-LX;
-      		// LXBr = 256-LXBl;
-      		analogWrite(5,255);
-      		// Serial.println(LXBl);
-      		analogWrite(10,255);
-      		// Serial.println(LXBr);
+		}
+		else if (mind_n_modeA == 1)
+		{
+			hw = analogRead(A1);
+      if (hw<280) 
+      {
+        turnAround();
+      }
+      DF_runAll();           
 		}
 	}
 	Serial.println();
-	delay(300);
+	delay(30);
 }
 
-
-// ×Ô¶¨Òåº¯Êı
-void DF_stopAll() {
+// è‡ªå®šä¹‰å‡½æ•°
+void DF_stopAll()
+{
 	stopR();
 	stopL();
 }
-void DF_runAll() {
+void DF_runAll()
+{
 	runL();
 	runR();
 }
-void DF_fRunAll() {
+void DF_fRunAll()
+{
 	frunL();
 	frunR();
 }
-void stopL() {
+void stopL()
+{
 	digitalWrite(8, LOW);
 	digitalWrite(9, LOW);
 }
-void stopR() {
+void stopR()
+{
 	digitalWrite(7, LOW);
 	digitalWrite(6, LOW);
 }
-void runL() {
+void runL()
+{
 	digitalWrite(6, LOW);
 	digitalWrite(7, HIGH);
 }
-void runR() {
+void runR()
+{
 	digitalWrite(8, LOW);
 	digitalWrite(9, HIGH);
 }
-void frunL() {
+void frunL()
+{
 	digitalWrite(6, HIGH);
 	digitalWrite(7, LOW);
 }
-void frunR() {
+void frunR()
+{
 	digitalWrite(8, HIGH);
 	digitalWrite(9, LOW);
+}
+void sRun()
+{
+	sx = abs(ps2x.Analog(PSS_LX) - 127) * 2 - 1;
+	sy = abs(ps2x.Analog(PSS_LY) - 127) * 2 - 1;
+	if (sx > sy)
+	{
+		analogWrite(5, sx);
+		analogWrite(10, sx);
+		Serial.println(sx);
+	}
+	else
+	{
+		analogWrite(5, sy);
+		analogWrite(10, sy);
+		Serial.println(sy);
+	}
 }
