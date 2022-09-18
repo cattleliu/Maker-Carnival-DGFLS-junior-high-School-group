@@ -5,17 +5,17 @@
  */
 #include <DFRobot_PS2X.h>
 
-// ¶¯Ì¬±äÁ¿
+// åŠ¨æ€å˜é‡
 volatile float mind_n_modeA;
-// º¯ÊıÉùÃ÷
+// å‡½æ•°å£°æ˜
 void DF_stopAll();
 void DF_runAll();
 void DF_fRunAll();
-// ´´½¨¶ÔÏó
+// åˆ›å»ºå¯¹è±¡
 DFRobot_PS2X ps2x;
 
 
-// Ö÷³ÌĞò¿ªÊ¼
+// ä¸»ç¨‹åºå¼€å§‹
 void setup() {
 	ps2x.config_gamepad(A2,A4,A3,A5, true, true);
 	delay(300);
@@ -75,7 +75,7 @@ void loop() {
 }
 
 
-// ×Ô¶¨Òåº¯Êı
+// è‡ªå®šä¹‰å‡½æ•°
 void DF_stopAll() {
 	digitalWrite(7, LOW);
 	digitalWrite(6, LOW);
