@@ -4,6 +4,7 @@
  *
  */
 #include <DFRobot_PS2X.h>
+#include <QMC5883LCompass.h>
 
 // 动态变量
 volatile float mind_n_modeA;
@@ -21,6 +22,7 @@ void sRun();
 void turnAround();
 // 创建对象
 DFRobot_PS2X ps2x;
+QMC5883LCompass compass;
 
 // 主程序开始
 void setup()
@@ -31,9 +33,8 @@ void setup()
 	pinMode(9, OUTPUT);
 	pinMode(13, OUTPUT);
 	ps2x.config_gamepad(A2, A4, A3, A5, true, true);
-	delay(300);
 	ps2x.read_gamepad();
-	delay(30);
+  compass.init();
 	Serial.begin(9600);
 	mind_n_modeA = 0; //自动和手动状态
 	digitalWrite(13, HIGH);
@@ -48,13 +49,17 @@ double LY;
 
 int sx;
 int sy;
+int ds;
+int lds;
 double hw;
+double timee,timeel;
 
 int tmpl;
 
 void loop()
 {
 	ps2x.read_gamepad(); //刷新
+  compass.read();
 	if (ps2x.Button(PSB_BLUE))
 	{
 		DF_stopAll();
@@ -112,11 +117,11 @@ void loop()
 		else if (mind_n_modeA == 1)
 		{
 			hw = analogRead(A1);
-      		if (hw<280) 
-      		{
-        		turnAround();
-      		}
-      		DF_runAll();           
+      if (hw<280) 
+      {
+      	turnLAround();
+      }
+      DF_runAll();           
 		}
 	}
 	Serial.println();
@@ -124,6 +129,32 @@ void loop()
 }
 
 // 自定义函数
+void turnLAround(){
+  ds = compass.getAzimuth();
+  lds = ds+180;
+  while (ds!=lds)
+  {
+    ds = compass.getAzimuth();
+    stopL();
+    runR();  
+    delay(5);  
+  }
+  timee = millis();
+  timeel = timee+900;
+  while (timee!=timeel) {
+    DF_runAll();
+    delay(5);
+  }
+  ds = compass.getAzimuth();
+  lds = ds+180;
+  while (ds!=lds)
+  {
+    ds = compass.getAzimuth();
+    stopL();
+    runR();  
+    delay(5);  
+  }
+}
 void DF_stopAll()
 {
 	stopR();
