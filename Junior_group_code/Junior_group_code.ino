@@ -1,8 +1,3 @@
-/*!
- * MindPlus
- * uno
- *
- */
 #include <DFRobot_PS2X.h>
 #include <QMC5883LCompass.h>
 
@@ -19,12 +14,12 @@ void runR();
 void frunL();
 void frunR();
 void sRun();
-void turnAround();
-// 创建对象
+void turnRAround();
+void nXstop();
+
 DFRobot_PS2X ps2x;
 QMC5883LCompass compass;
 
-// 主程序开始
 void setup()
 {
 	pinMode(6, OUTPUT);
@@ -32,10 +27,9 @@ void setup()
 	pinMode(8, OUTPUT);
 	pinMode(9, OUTPUT);
 	pinMode(13, OUTPUT);
-	ps2x.config_gamepad(A2, A4, A3, A5, true, true);
-	ps2x.read_gamepad();
-  compass.init();
-	Serial.begin(9600);
+	ps2x.config_gamepad(A1, A3, A2, 3, true, true);
+	compass.init();
+	Serial.begin(115200);
 	mind_n_modeA = 0; //自动和手动状态
 	digitalWrite(13, HIGH);
 }
@@ -50,16 +44,19 @@ double LY;
 int sx;
 int sy;
 int ds;
-int lds;
+int lds, ldsmax, ldsmin;
 double hw;
-double timee,timeel;
+double timee, timeel;
 
 int tmpl;
+int a_temp;
+
+const int speedr = 90;
 
 void loop()
 {
 	ps2x.read_gamepad(); //刷新
-  compass.read();
+	compass.read();
 	if (ps2x.Button(PSB_BLUE))
 	{
 		DF_stopAll();
@@ -68,7 +65,7 @@ void loop()
 	else
 	{
 		if (ps2x.Button(PSB_SELECT))
-		{
+
 			if ((mind_n_modeA == 1))
 			{
 				mind_n_modeA = 0;
@@ -79,81 +76,103 @@ void loop()
 				mind_n_modeA = 1;
 				digitalWrite(13, LOW);
 			}
-		}
-		if ((mind_n_modeA == 0))
+	}
+	if ((mind_n_modeA == 0))
+	{
+		if ((ps2x.Analog(PSS_LY) < 120))
 		{
-			if ((ps2x.Analog(PSS_LY) < 120))
-			{
-				sRun();
-				DF_fRunAll();
-				Serial.println("后");
-			}
-			else if (ps2x.Analog(PSS_LY) > 134)
-			{
-				sRun();
-				DF_runAll();
-				Serial.println("前");
-			}
-			else if ((ps2x.Analog(PSS_LX) < 120))
-			{
-				sRun();
-				frunL();
-				runR();
-				Serial.println("左");
-			}
-			else if (ps2x.Analog(PSS_LX) > 134)
-			{
-				sRun();
-				runL();
-				frunR();
-				Serial.println("右");
-			}
-			else
-			{
-				DF_stopAll();
-				Serial.println("allstop");
-			}
+			sRun();
+			DF_fRunAll();
 		}
-		else if (mind_n_modeA == 1)
+		else if (ps2x.Analog(PSS_LY) > 134)
 		{
-			hw = analogRead(A1);
-      if (hw<280) 
-      {
-      	turnLAround();
-      }
-      DF_runAll();           
+			sRun();
+			DF_runAll();
+		}
+		else if ((ps2x.Analog(PSS_LX) < 120))
+		{
+			sRun();
+			frunR();
+			runL();
+		}
+		else if (ps2x.Analog(PSS_LX) > 134)
+		{
+			sRun();
+			runR();
+			frunL();
+		}
+		else
+		{
+			DF_stopAll();
 		}
 	}
-	Serial.println();
-	delay(30);
+	else if (mind_n_modeA == 1)
+	{
+		hw = analogRead(A0);
+		Serial.print("hw");
+		Serial.println(hw);
+		if (hw < 100)
+		{
+			Serial.println("meet black");
+			turnRAround();
+			analogWrite(10, speedr);
+			analogWrite(5, speedr);
+		}
+		DF_fRunAll();
+		analogWrite(10, speedr);
+		analogWrite(5, speedr);
+	}
+	delay(50);
 }
 
-// 自定义函数
-void turnLAround(){
-  ds = compass.getAzimuth();
-  lds = ds+180;
-  while (ds!=lds)
-  {
-    ds = compass.getAzimuth();
-    stopL();
-    runR();  
-    delay(5);  
-  }
-  timee = millis();
-  timeel = timee+900;
-  while (timee!=timeel) {
-    DF_runAll();
-    delay(5);
-  }
-  ds = compass.getAzimuth();
-  lds = ds+180;
-  while (ds!=lds)
-  {
-    ds = compass.getAzimuth();
-    stopL();
-    runR();  
-    delay(5);  
-  }
+// 自定义函�?
+void nXstop()
+{
+	if (ps2x.Button(PSB_BLUE))
+	{
+		DF_stopAll();
+		Serial.println("x down");
+	}
+}
+void turnLAround()
+{
+	Serial.println("into trunLAruond");
+	ds = compass.getAzimuth();
+	Serial.println(ds);
+	delay(3000);
+	if (ds > 90)
+	{
+
+		a_temp = ds - 90;
+	}
+	else
+	{
+		a_temp = 360 - abs(ds - 90);
+	}
+
+	Serial.print("a_temp:");
+	Serial.println(a_temp);
+	delay(5000);
+	runL();
+	analogWrite(5, speedr);
+	analogWrite(10, speedr);
+	while (abs(ds - a_temp) > 4 & abs(ds - a_temp) < 354)
+	{
+		compass.read();
+		ds = compass.getAzimuth();
+		Serial.print("ds:");
+		Serial.println(ds);
+		Serial.print("atemp:");
+		Serial.println(a_temp);
+
+		// Serial.print("abs:");
+		// Serial.println(abs(ds-a_temp));
+		delay(50);
+	}
+
+	// while((abs(ds-a_temp)<4)||(abs(ds-a_temp)>356));
+	DF_stopAll();
+	Serial.println("stop runl");
 }
 void DF_stopAll()
 {
@@ -180,22 +199,22 @@ void stopR()
 	digitalWrite(7, LOW);
 	digitalWrite(6, LOW);
 }
-void runL()
+void runR()
 {
 	digitalWrite(6, LOW);
 	digitalWrite(7, HIGH);
 }
-void runR()
+void runL()
 {
 	digitalWrite(8, LOW);
 	digitalWrite(9, HIGH);
 }
-void frunL()
+void frunR()
 {
 	digitalWrite(6, HIGH);
 	digitalWrite(7, LOW);
 }
-void frunR()
+void frunL()
 {
 	digitalWrite(8, HIGH);
 	digitalWrite(9, LOW);
